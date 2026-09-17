@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <title>Social Media Service Panel</title>
+  <style>
+    :root{
+      --bg:#070b16; --card:rgba(255,255,255,.075); --border:rgba(255,255,255,.13);
+      --text:#f7f8ff; --muted:#aeb7d0; --accent:#8b5cf6; --accent2:#06b6d4;
+      --danger:#fb7185; --success:#34d399; --shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:
+      radial-gradient(circle at 15% 10%,rgba(139,92,246,.22),transparent 35%),
+      radial-gradient(circle at 85% 85%,rgba(6,182,212,.16),transparent 35%),var(--bg)}
+    body{padding:18px}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{width:min(100%,560px);margin:auto;min-height:calc(100vh - 36px);display:flex;flex-direction:column}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .brand{font-weight:800;letter-spacing:.2px;font-size:18px}
+    .balance{display:flex;align-items:center;gap:8px}
+    .credit-pill{padding:9px 12px;border:1px solid var(--border);background:var(--card);border-radius:999px;font-weight:800}
+    .btn{border:0;border-radius:16px;padding:14px 18px;color:#fff;font-weight:800;min-height:50px;transition:.2s transform,.2s opacity}
+    .btn:active{transform:scale(.98)}
+    .primary{background:linear-gradient(135deg,var(--accent),#6366f1)}
+    .secondary{background:rgba(255,255,255,.08);border:1px solid var(--border)}
+    .success{background:linear-gradient(135deg,#059669,#10b981)}
+    .whatsapp{background:#25D366;color:#04140a}
+    .danger{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.3)}
+    .disabled{opacity:.45;cursor:not-allowed}
+    main{flex:1;position:relative}
+    .slide{display:none;animation:slideIn .32s ease}
+    .slide.active{display:block}
+    @keyframes slideIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:26px;padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    h1{font-size:30px;line-height:1.1;margin:0 0 10px}
+    h2{font-size:22px;margin:0 0 8px}
+    p{color:var(--muted);line-height:1.55;margin:8px 0}
+    .hero{text-align:center;padding:34px 22px}
+    .ig-logo{width:82px;height:82px;border-radius:24px;display:grid;place-items:center;margin:0 auto 20px;
+      background:radial-gradient(circle at 30% 105%,#ffd600 0 12%,#ff7a00 32%,#ff0069 58%,#833ab4 82%);box-shadow:0 12px 35px rgba(255,0,105,.25)}
+    .ig-logo svg{width:48px;height:48px}
+    label{display:block;font-size:13px;font-weight:800;margin:20px 0 8px}
+    input{width:100%;border:1px solid var(--border);background:rgba(0,0,0,.22);color:#fff;border-radius:15px;padding:15px;outline:none}
+    input:focus{border-color:rgba(139,92,246,.8);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+    .note{font-size:12px;color:#98a3bf;margin-top:10px}
+    .grid{display:grid;gap:13px;margin-top:20px}
+    .option{text-align:left;width:100%;padding:19px;border-radius:20px;background:rgba(255,255,255,.055);border:1px solid var(--border);color:#fff}
+    .option strong{display:block;font-size:17px;margin-bottom:5px}
+    .option span{color:var(--muted);font-size:13px}
+    .option.selected{border-color:rgba(139,92,246,.9);background:rgba(139,92,246,.13)}
+    .service-icon{font-size:24px;margin-bottom:9px}
+    .package{padding:19px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.045);margin-top:14px}
+    .package-top{display:flex;justify-content:space-between;gap:12px;align-items:start}
+    .price{font-weight:900;color:#d8ccff;white-space:nowrap}
+    .qty{display:flex;align-items:center;gap:12px;margin-top:18px}
+    .qty button{width:48px;height:48px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:#fff;font-size:24px}
+    .qty input{text-align:center;font-weight:900;padding:12px}
+    .summary{margin-top:18px;padding:17px;border-radius:18px;background:rgba(0,0,0,.2)}
+    .row{display:flex;justify-content:space-between;gap:14px;margin:8px 0;color:var(--muted)}
+    .row b{color:#fff;text-align:right}
+    .actions{display:grid;gap:11px;margin-top:18px}
+    .error{color:#fda4af;font-size:13px;margin-top:10px;display:none}
+    .error.show{display:block}
+    .success-box{text-align:center;padding:28px 10px}
+    .check{font-size:58px;margin-bottom:8px}
+    .order-id{font-family:ui-monospace,monospace;font-weight:900;background:rgba(255,255,255,.07);padding:11px 14px;border-radius:12px;display:inline-block;margin:12px 0}
+    .progress{display:flex;gap:6px;margin:0 0 18px}
+    .dot{height:4px;flex:1;border-radius:99px;background:rgba(255,255,255,.12)}
+    .dot.on{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;place-items:center;padding:18px;z-index:20}
+    .modal.show{display:grid}
+    .modal-card{width:min(100%,480px);background:#101629;border:1px solid var(--border);border-radius:25px;padding:23px;box-shadow:var(--shadow)}
+    .small{font-size:12px;color:var(--muted)}
+    footer{text-align:center;color:#78829b;font-size:11px;padding:18px 0 5px}
+    a{color:#b9a5ff}
+    @media(min-width:600px){body{padding:28px}.card{padding:30px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Social Media Panel</div>
+  </header>
+
+  <main>
+    <div class="progress" aria-label="Progress">
+      <span class="dot on" id="d1"></span><span class="dot" id="d2"></span>
+      <span class="dot" id="d3"></span><span class="dot" id="d4"></span>
+    </div>
+
+    <!-- SLIDE 1 -->
+    <section class="slide active" id="slide1">
+      <div class="card hero">
+        <div class="ig-logo" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7">
+            <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/>
+            <circle cx="12" cy="12" r="4.1"/>
+            <circle cx="17.5" cy="6.7" r="1"/>
+          </svg>
+        </div>
+        <h1>Connect Instagram</h1>
+        <p>Enter your Instagram username to continue.</p>
+        <label for="username">Instagram Username</label>
+        <input id="username" type="text" autocomplete="username" placeholder="@username" maxlength="50">
+        <div class="note">🔒 Your Instagram password is never entered, collected, stored, or transmitted by this website.</div>
+        <div class="actions">
+          <button class="btn primary" id="continueBtn">Continue</button>
+          <button class="btn secondary" id="instagramOAuthBtn" type="button">Continue securely with Instagram</button>
+        </div>
+        <div class="error" id="usernameError">Please enter your Instagram username.</div>
+        <div class="small" id="instagramOAuthStatus" style="margin-top:12px">
+          Official Instagram OAuth is not configured yet. This button will not fake a login or collect a password.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" id="slide2">
+      <div class="card">
+        <h1>Select Service</h1>
+        <p>Choose the platform for your order.</p>
+        <div class="grid">
+          <button class="option" data-platform="Instagram">
+            <div class="service-icon">📸</div><strong>Instagram Service</strong><span>Likes and Reel Views</span>
+          </button>
+          <button class="option" data-platform="YouTube">
+            <div class="service-icon">▶️</div><strong>YouTube Service</strong><span>Likes</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3A / 3B -->
+    <section class="slide" id="slide3">
+      <div class="card">
+        <h1 id="categoryTitle">Categories</h1>
+        <p id="platformHint"></p>
+        <div id="categoryList" class="grid"></div>
+        <div class="error" id="categoryError">Please select a service.</div>
+      </div>
+    </section>
+
+    <!-- ORDER -->
+    <section class="slide" id="slideOrder">
+      <div class="card">
+        <h1>Place Order</h1>
+        <p>Review the package, choose quantity, and enter the target link.</p>
+
+        <div class="summary">
+          <div class="row"><span>Platform</span><b id="sumPlatform">—</b></div>
+          <div class="row"><span>Service</span><b id="sumService">—</b></div>
+          <div class="row"><span>Package</span><b id="sumPackage">—</b></div>
+          <div class="row"><span>Price / package</span><b id="sumUnit">—</b></div>
+        </div>
+
+        <div class="package">
+          <div class="package-top">
+            <div><strong id="packageText">Package</strong><div class="small">Quantity means number of packages.</div></div>
+            <div class="price" id="packagePrice">₹0</div>
+          </div>
+          <div class="qty">
+            <button type="button" id="minus">−</button>
+            <input id="quantity" type="number" min="1" max="100" value="1" inputmode="numeric">
+            <button type="button" id="plus">+</button>
+          </div>
+        </div>
+
+        <label for="targetLink">Target Instagram Reel / YouTube Video URL</label>
+        <input id="targetLink" type="url" placeholder="Paste Instagram Reel or YouTube video URL" autocomplete="off">
+        <div class="error" id="linkError">Please enter an Instagram Reel URL or YouTube video URL (for example: instagram.com/reel/... or youtube.com/watch?v=...).</div>
+
+        <div class="summary">
+          <div class="row"><span>Total packages</span><b id="totalQty">1</b></div>
+          <div class="row"><span>Total amount</span><b id="totalAmount">₹0</b></div>
+        </div>
+        <div class="actions">
+          <button class="btn success" id="placeOrder">Place Order</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide" id="slide4">
+      <div class="card success-box">
+        <div class="check">✅</div>
+        <h1>Order Done! ✅</h1>
+        <p>Your order has been recorded in this demo panel.</p>
+        <div class="order-id" id="doneOrderId">—</div>
+        <div class="summary" style="text-align:left">
+          <div class="row"><span>Platform</span><b id="donePlatform">—</b></div>
+          <div class="row"><span>Service</span><b id="doneService">—</b></div>
+          <div class="row"><span>Package quantity</span><b id="doneQty">—</b></div>
+          <div class="row"><span>Total price</span><b id="doneAmount">—</b></div>
+          <div class="row"><span>Target</span><b id="doneTarget" style="max-width:65%;overflow-wrap:anywhere">—</b></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="newOrder">New Order</button>
+          <a class="btn whatsapp" id="whatsappBtn" target="_blank" rel="noopener">Customer WhatsApp Support</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>Social Media Service Panel • No payment or credit is required to place an order.</footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /*
+    SECURITY / PRODUCTION NOTES
+    1. This file NEVER asks for an Instagram password.
+    2. This file NEVER asks for a Google password.
+    3. Instagram authentication, when enabled, redirects to Instagram's official OAuth authorization endpoint.
+    4. Google authentication must use Google's official Google Identity Services.
+    5. Set real OAuth configuration values and HTTPS redirect URIs for production.
+    5. The callback token must be verified server-side. Do NOT trust browser/localStorage claims.
+    6. Only your secure backend should verify the authorized YouTube account/channel and award exactly 50 amount.
+    7. DEMO CREDIT ADDING IS INTENTIONALLY NOT IMPLEMENTED. Clicking the Google button does not award amount.
+  */
+
+  const CONFIG = {
+    // Replace with your real Google Web Client ID after configuring Google Identity Services.
+    GOOGLE_CLIENT_ID: "",
+    // Official Instagram OAuth configuration. Set these only after creating/configuring
+    // the appropriate Meta/Instagram app and redirect URI for your production domain.
+    INSTAGRAM_APP_ID: "",
+    INSTAGRAM_REDIRECT_URI: "",
+    INSTAGRAM_OAUTH_AUTHORIZE_URL: "https://www.instagram.com/oauth/authorize",
+    // Replace with your secure HTTPS backend endpoint that exchanges/verifies the OAuth code.
+    INSTAGRAM_CODE_EXCHANGE_ENDPOINT: "/api/instagram/oauth/callback",
+    // Example only; replace with your HTTPS backend endpoint.
+    OAUTH_VERIFY_ENDPOINT: "/api/google/youtube/verify",
+    WHATSAPP: "https://wa.me/917738184971"
+  };
+
+  const PRICING = {
+    "Instagram Likes": { platform:"Instagram", packageText:"1 Package = 250 Likes = ₹5", unit:5 },
+    "Instagram Reel Views": { platform:"Instagram", packageText:"1 Package = 10K Reel Views = ₹1", unit:1 },
+    "YouTube Likes": { platform:"YouTube", packageText:"1 Package = 250 Likes = ₹5", unit:5 }
+  };
+
+  const state = {
+    slide: 1, username: "", platform: "", service: "", quantity: 1, target: "", lastOrder: null
+  };
+
+  const $ = id => document.getElementById(id);
+
+  function showSlide(n) {
+    state.slide = n;
+    document.querySelectorAll(".slide").forEach(s => s.classList.remove("active"));
+    const id = n === 3 ? "slide3" : n === 4 ? "slide4" : n === 5 ? "slideOrder" : "slide" + n;
+    $(id).classList.add("active");
+    ["d1","d2","d3","d4"].forEach((id,i) => $(id).classList.toggle("on", i < n));
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+  function validInstagramUsername(v) {
+    return /^[A-Za-z0-9._]{1,30}$/.test(v.replace(/^@/,"").trim());
+  }
+  function validTarget(url, platform) {
+    const raw = String(url || "").trim();
+    if (!raw) return false;
+
+    // Accept pasted links even when users omit https://.
+    let normalized = raw;
+    if (!/^https?:\/\//i.test(normalized)) normalized = "https://" + normalized;
+
+    try {
+      const u = new URL(normalized);
+      const host = u.hostname.toLowerCase().replace(/^www\./, "");
+      const path = u.pathname.toLowerCase();
+
+      if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+
+      if (platform === "Instagram") {
+        // Common Reel forms:
+        // instagram.com/reel/...
+        // instagram.com/reels/...
+        // instagram.com/p/... (Instagram may use /p/ for shared Reel URLs)
+        return host === "instagram.com" &&
+               (/^\/reel(?:\/|$)/.test(path) ||
+                /^\/reels(?:\/|$)/.test(path) ||
+                /^\/p(?:\/|$)/.test(path));
+      }
+
+      if (platform === "YouTube") {
+        // Common YouTube forms:
+        // youtube.com/watch?v=...
+        // youtube.com/shorts/...
+        // youtube.com/live/...
+        // youtu.be/...
+        if (host === "youtu.be") return path.length > 1;
+        if (host === "youtube.com") {
+          return /^\/watch(?:\/|$)/.test(path) ||
+                 /^\/shorts(?:\/|$)/.test(path) ||
+                 /^\/live(?:\/|$)/.test(path);
+        }
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  function hideErrors() {
+    document.querySelectorAll(".error").forEach(e => e.classList.remove("show"));
+  }
+
+  $("continueBtn").onclick = () => {
+    hideErrors();
+    const v = $("username").value.trim();
+    if (!validInstagramUsername(v)) { $("usernameError").classList.add("show"); return; }
+    state.username = v.replace(/^@/,"");
+    showSlide(2);
+  };
+
+  document.querySelectorAll("[data-platform]").forEach(btn => {
+    btn.onclick = () => {
+      state.platform = btn.dataset.platform;
+      state.service = "";
+      buildCategories();
+      showSlide(3);
+    };
+  });
+
+  function buildCategories() {
+    const list = $("categoryList");
+    list.innerHTML = "";
+    const items = state.platform === "Instagram"
+      ? [
+          ["Instagram Likes","250 Likes = ₹5"],
+          ["Instagram Reel Views","10K Reel Views = ₹1"]
+        ]
+      : [["YouTube Likes","250 Likes = ₹5"]];
+
+    $("platformHint").textContent = "Selected platform: " + state.platform;
+    items.forEach(([name,desc]) => {
+      const b = document.createElement("button");
+      b.className = "option";
+      b.innerHTML = `<strong>${name}</strong><span>${desc}</span>`;
+      b.onclick = () => {
+        state.service = name;
+        state.quantity = 1;
+        setupOrder();
+        showSlide(5);
+      };
+      list.appendChild(b);
+    });
+  }
+
+  function setupOrder() {
+    const p = PRICING[state.service];
+    $("sumPlatform").textContent = p.platform;
+    $("sumService").textContent = state.service;
+    $("sumPackage").textContent = p.packageText;
+    $("sumUnit").textContent = "₹" + p.unit;
+    $("packageText").textContent = p.packageText;
+    $("packagePrice").textContent = "₹" + p.unit;
+    $("quantity").value = state.quantity;
+    $("targetLink").value = "";
+    updateTotals();
+    hideErrors();
+  }
+
+  function updateTotals() {
+    let q = parseInt($("quantity").value,10);
+    if (!Number.isFinite(q)) q = 1;
+    q = Math.min(100, Math.max(1, q));
+    state.quantity = q;
+    $("quantity").value = q;
+    const unit = PRICING[state.service]?.unit || 0;
+    $("totalQty").textContent = q;
+    $("totalAmount").textContent = "₹" + (q * unit);
+  }
+
+  $("minus").onclick = () => { $("quantity").value = state.quantity - 1; updateTotals(); };
+  $("plus").onclick = () => { $("quantity").value = state.quantity + 1; updateTotals(); };
+  $("quantity").oninput = updateTotals;
+
+  $("placeOrder").onclick = () => {
+    hideErrors();
+    const p = PRICING[state.service];
+    const q = state.quantity;
+    const total = p.unit * q;
+    const target = $("targetLink").value.trim();
+
+    if (!validTarget(target, state.platform)) {
+      $("linkError").classList.add("show");
+      return;
+    }
+
+    const orderId = "SM-" + new Date().toISOString().replace(/[-:TZ.]/g,"").slice(0,14) + "-" + Math.floor(1000 + Math.random()*9000);
+
+    state.lastOrder = {
+      orderId, platform: state.platform, service: state.service,
+      quantity:q, totalAmount:total, target, username:state.username,
+      createdAt:new Date().toISOString()
+    };
+    localStorage.setItem("demoLastOrder", JSON.stringify(state.lastOrder));
+
+    $("doneOrderId").textContent = orderId;
+    $("donePlatform").textContent = state.platform;
+    $("doneService").textContent = state.service;
+    $("doneQty").textContent = q;
+    $("doneAmount").textContent = "₹" + total;
+    $("doneTarget").textContent = target;
+
+    const msg =
+`New Order Received
+Order ID: ${orderId}
+Platform: ${state.platform}
+Service: ${state.service}
+Package quantity: ${q}
+Total Amount: ₹${total}
+Target Link: ${target}`;
+    $("whatsappBtn").href = CONFIG.WHATSAPP + "?text=" + encodeURIComponent(msg);
+
+    showSlide(4);
+  };
+
+  $("newOrder").onclick = () => {
+    state.service = ""; state.quantity = 1; state.target = "";
+    showSlide(2);
+  };
+
+
+})();
+
+</script>
+</body>
+</html>
